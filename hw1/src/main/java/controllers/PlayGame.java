@@ -1,7 +1,7 @@
 package controllers;
 
+import com.google.gson.Gson;
 import io.javalin.Javalin;
-import io.javalin.plugin.json.JavalinJson;
 import java.io.IOException;
 import java.util.Queue;
 import models.GameBoard;
@@ -21,6 +21,8 @@ final class PlayGame {
   private static Javalin app;
   /** the current GameBoard object. */
   private static GameBoard gb = null;
+  /** Gson Object used to transfer Object to Json String. */
+  private static Gson gson = new Gson();
   /** the error messages. */
   private static String[] messages = {
     "",
@@ -57,8 +59,8 @@ final class PlayGame {
     app.post("/startgame", ctx -> {
       char choice = ctx.body().charAt(TYPE_INDEX_IN_MESSAGE);
       gb = new GameBoard(choice);
-
-      ctx.result(JavalinJson.toJson(gb));
+      
+      ctx.result(gson.toJson(gb));
     });
 
     // joinGame
@@ -69,7 +71,7 @@ final class PlayGame {
       }
       gb.setGameStarted(true);
       ctx.redirect("/tictactoe.html?p=2");
-      sendGameBoardToAllPlayers(JavalinJson.toJson(gb));
+      sendGameBoardToAllPlayers(gson.toJson(gb));
     });
 
     // move
@@ -87,8 +89,8 @@ final class PlayGame {
       Result res = gb.update(x, y, c);
       Message m = new Message(res == Result.VALID, DEFAULT_MESSAGE_CODE,
           messages[res.ordinal()]);
-      ctx.result(JavalinJson.toJson(m));
-      sendGameBoardToAllPlayers(JavalinJson.toJson(gb));
+      ctx.result(gson.toJson(m));
+      sendGameBoardToAllPlayers(gson.toJson(gb));
     });
 
     // Web sockets - DO NOT DELETE or CHANGE
